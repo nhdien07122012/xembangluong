@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tra cứu Bảng lương</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+      padding: 2rem;
+      max-width: 480px;
+      margin: 2rem auto;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center;
+      color: #2d3a4a;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+    }
+    form {
+      background: #fff;
+      padding: 1.5rem 1rem 1rem 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: #374151;
+    }
+    input, select {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f1f5f9;
+      font-size: 1rem;
+      transition: border 0.2s;
+      min-height: 44px; /* Đảm bảo chiều cao đồng nhất */
+    }
+    input:focus, select:focus {
+      border-color: #6366f1;
+      outline: none;
+      background: #fff;
+    }
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(90deg, #6366f1 60%, #60a5fa 100%);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+      transition: background 0.2s, transform 0.1s;
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(90deg, #4f46e5 60%, #2563eb 100%);
+      transform: translateY(-2px) scale(1.01);
+    }
+    #result {
+      margin-top: 1.5rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 1.25rem 1rem;
+      min-height: 60px;
+      font-size: 1.05rem;
+      color: #22223b;
+    }
+    #result p {
+      margin: 0.5rem 0;
+    }
+    #result a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    #result a:hover {
+      color: #1e40af;
+      text-decoration: underline;
+    }
+    #result iframe {
+      width: 100%;
+      height: 500px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      margin-top: 1rem;
+      background: #f8fafc;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 0.5rem;
+        margin: 0.5rem;
+      }
+      form, #result {
+        padding: 1rem 0.5rem;
+      }
+      #result iframe {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Tra cứu bảng lương</h1>
+
+  <form id="form">
+    <label for="hrm">Mã HRM:</label>
+    <input id="hrm" type="text" placeholder="Nhập mã HRM" required>
+
+    <label for="pin">Mã PIN:</label>
+    <input id="pin" type="password" placeholder="Nhập PIN chung" required>
+
+    <label for="month">Tháng:</label>
+    <select id="month" required>
+      <option value="">Chọn tháng</option>
+      <script>
+        // sinh options tháng 01–12
+        const now = new Date();
+        const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+        for (let i = 1; i <= 12; i++) {
+          const m = i.toString().padStart(2, '0');
+          const selected = m === currentMonth ? 'selected' : '';
+          document.write(`<option value="${m}" ${selected}>Tháng ${i}</option>`);
+        }
+      </script>
+    </select>
+
+    <label for="year">Năm:</label>
+    <select id="year" required>
+      <option value="">Chọn năm</option>
+      <script>
+        // sinh options năm, mặc định chọn năm hiện tại
+        const currentYear = now.getFullYear();
+        const years = [2023, 2024, 2025];
+        years.forEach(y => {
+          const selected = y === currentYear ? 'selected' : '';
+          document.write(`<option value="${y}" ${selected}>${y}</option>`);
+        });
+      </script>
+    </select>
+
+    <button type="submit">Xem bảng lương</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    // ===== Cấu hình =====
+    const GLOBAL_PIN = 'luong2025';  // <-- Mã PIN chung cho tất cả người dùng
+
+    // ===== Load mapping HRM → Tên nhân viên =====
+    let mapping = {};
+    fetch('mapping.json')
+      .then(r => r.ok ? r.json() : Promise.reject('Không load được mapping.json'))
+      .then(js => mapping = js)
+      .catch(err => console.error(err));
+
+    // ===== Xử lý form submit =====
+    document.getElementById('form').addEventListener('submit', ev => {
+      ev.preventDefault();
+      const hrm   = document.getElementById('hrm').value.trim();
+      const pin   = document.getElementById('pin').value;
+      const mm    = document.getElementById('month').value;
+      const yyyy  = document.getElementById('year').value;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';  // reset kết quả
+
+      // 1) Kiểm tra PIN chung
+      if (pin !== GLOBAL_PIN) {
+        resultDiv.textContent = 'PIN không đúng.';
+        return;
+      }
+      // 2) Kiểm tra HRM có trong mapping?
+      if (!mapping[hrm]) {
+        resultDiv.textContent = 'Mã HRM không tồn tại.';
+        return;
+      }
+
+      // 3) Xây dựng URL tới file PDF
+      const folder = `T${mm}.${yyyy}`;
+      const empObj = mapping[hrm];
+      if (!empObj || !empObj.name || !empObj.unit) {
+        resultDiv.textContent = 'Dữ liệu nhân viên không hợp lệ.';
+        return;
+      }
+      // Xử lý tên và đơn vị thành tên file
+      const safeName = empObj.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9 ]/g, '')
+        .replace(/\s+/g, '_');
+      const safeUnit = empObj.unit.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9]/g, '');
+      const filename = `${safeName}_${safeUnit}.pdf`;
+      const url = `bangluong/${folder}/${filename}`;
+
+      // 4) Gửi HEAD request để kiểm tra file có tồn tại không
+      fetch(url, { method: 'HEAD' })
+        .then(res => {
+          if (res.ok) {
+            // Hiển thị tên, link tải và nhúng iframe PDF
+            resultDiv.innerHTML = `
+              <p><strong>Nhân viên:</strong> ${empObj.name} (${empObj.unit})</p>
+              <p><a href="${url}" download>📥 Tải về ${filename}</a></p>
+              <iframe src="${url}#view=FitH" title="Bảng lương"></iframe>
+            `;
+          } else {
+            resultDiv.textContent = 'Không tìm thấy bảng lương tháng ' + mm + '/' + yyyy;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          resultDiv.textContent = 'Lỗi khi truy xuất file.';
+        });
+    });
+  </script>
+</body>
+</html>

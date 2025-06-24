@@ -208,9 +208,17 @@
             // Hiển thị tên, link tải và nhúng iframe PDF
             resultDiv.innerHTML = `
               <p><strong>Nhân viên:</strong> ${empObj.name} (${empObj.unit})</p>
-              <p><a href="${url}" download>📥 Tải về ${filename}</a></p>
+              <p>
+                <a href="${url}" download>📥 Tải về ${filename}</a>
+                <button id="fullscreenBtn" title="Xem toàn màn hình" style="margin-left:12px; background:none; border:none; cursor:pointer; font-size:1.3em;">🔍</button>
+              </p>
               <iframe src="${url}#view=FitH" title="Bảng lương"></iframe>
             `;
+            // Thêm sự kiện cho nút phóng to
+            setTimeout(() => {
+              const btn = document.getElementById('fullscreenBtn');
+              if (btn) btn.onclick = () => window.open(url, '_blank');
+            }, 0);
           } else {
             resultDiv.textContent = 'Không tìm thấy bảng lương tháng ' + mm + '/' + yyyy;
           }

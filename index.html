@@ -195,12 +195,9 @@
         resultDiv.textContent = 'Dữ liệu nhân viên không hợp lệ.';
         return;
       }
-      // Xử lý tên và đơn vị thành tên file
-      const safeName = empObj.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9 ]/g, '')
-        .replace(/\s+/g, '_');
-      const safeUnit = empObj.unit.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]/g, '');
+      // Xử lý tên và đơn vị thành tên file (giữ nguyên dấu)
+      const safeName = empObj.name.replace(/\s+/g, '_');
+      const safeUnit = empObj.unit.replace(/\s+/g, '');
       const filename = `${safeName}_${safeUnit}.pdf`;
       const url = `bangluong/${folder}/${filename}`;
 

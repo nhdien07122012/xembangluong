@@ -137,7 +137,18 @@
     <input id="hrm" type="text" placeholder="Nhập mã HRM" required>
 
     <label for="pin">Mã PIN:</label>
-    <input id="pin" type="password" placeholder="Nhập PIN chung" required>
+    <div style="position:relative;">
+      <input id="pin" type="password" placeholder="Nhập PIN chung" required style="padding-right:2.5rem;">
+      <span id="togglePin" title="Hiện/ẩn PIN" style="
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #64748b;
+      ">👁️</span>
+    </div>
 
     <label for="month">Tháng:</label>
     <select id="month" required>
@@ -273,6 +284,16 @@
           resultDiv.textContent = 'Lỗi khi truy xuất file.';
         });
     });
+
+    // Xử lý hiện/ẩn PIN khi click vào biểu tượng mắt
+    document.getElementById('togglePin').addEventListener('click', function () {
+      const pinInput = document.getElementById('pin');
+      const isPassword = pinInput.type === 'password';
+      pinInput.type = isPassword ? 'text' : 'password';
+      this.textContent = isPassword ? '🙈' : '👁️'; // Đổi icon cho vui
+    });
+
+
   </script>
 </body>
 </html>

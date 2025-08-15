@@ -5,29 +5,40 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Tra cứu Bảng lương</title>
   <link rel="icon" type="image/x-icon" href="icon.ico">
-  <!-- Thêm link Roboto Mono từ Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Sử dụng Roboto giống project cước -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
-    html, body, input, select, button, label, strong, #result, .result, textarea {
-      font-family: 'Roboto Mono', monospace !important;
-    }
-    ::placeholder {
-      font-family: 'Roboto Mono', monospace !important;
-      opacity: 1;
-    }
-    :-ms-input-placeholder {
-      font-family: 'Roboto Mono', monospace !important;
-    }
-    ::-ms-input-placeholder {
-      font-family: 'Roboto Mono', monospace !important;
-    }
     body {
       background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-      padding: 2rem;
+      margin: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      box-shadow: 0 2px 8px #0001;
+      padding: 0 16px;
+      height: 56px;
+    }
+    .logo {
+      height: 36px;
+      margin-right: 10px;
+    }
+    .header-title {
+      font-size: 1.08em;
+      font-weight: 700;
+      color: #1976d2;
+      flex: 1;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .main {
       max-width: 480px;
       margin: 2rem auto;
-      border-radius: 18px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 0 4vw;
     }
     h1 {
       text-align: center;
@@ -115,8 +126,9 @@
     }
     @media (max-width: 600px) {
       body {
-        padding: 0.5rem;
-        margin: 0.5rem;
+        /* Xóa padding và margin để header sát mép trên */
+        padding: 0;
+        margin: 0;
       }
       form, #result {
         padding: 1rem 0.5rem;
@@ -125,93 +137,117 @@
         height: 320px;
       }
     }
+    .back-btn {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      margin-left: 12px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px #0001;
+    }
+    .back-btn:hover {
+      background: #1251a3;
+    }
+  @media (max-width: 600px) {
+    .back-btn {
+      padding: 6px 16px;
+      font-size: 1em;
+      border-radius: 8px;
+    }
+  }
   </style>
 </head>
+
 <body>
-  <div style="text-align:center; margin-bottom: 1.2rem;">
-    <img src="logo.png" alt="Logo" style="height:142px; max-width:60%; object-fit:contain; display:block; margin:0 auto 0.1rem auto;">
-    <h1 style="margin: 0; font-size: 1.5rem;">Tra cứu bảng lương (LLBH)</h1>
+  <div class="header">
+    <img src="logo.png" alt="Logo" class="logo">
+    <div class="header-title">Tra cứu lương</div>
+    <button class="back-btn" onclick="history.back()">Quay lại</button>
   </div>
-  <form id="form">
-    <label for="hrm">Mã HRM:</label>
-    <input id="hrm" type="text" placeholder="Nhập mã HRM" required>
+  <div class="main">
+    <form id="form">
+      <label for="hrm">Mã HRM:</label>
+      <input id="hrm" type="text" placeholder="Nhập mã HRM" required>
 
-    <label for="pin">Mã PIN:</label>
-    <div style="position:relative;">
-      <input id="pin" type="password" placeholder="Nhập PIN chung" required style="padding-right:2.5rem;">
-      <span id="togglePin" title="Hiện/ẩn PIN" style="
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        font-size: 1.2rem;
-        color: #64748b;
-      ">👁️</span>
+      <label for="pin">Mã PIN:</label>
+      <div style="position:relative;">
+        <input id="pin" type="password" placeholder="Nhập PIN chung" required style="padding-right:2.5rem;">
+        <span id="togglePin" title="Hiện/ẩn PIN" style="
+          position: absolute;
+          right: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          font-size: 1.2rem;
+          color: #64748b;
+        ">👁️</span>
+      </div>
+
+      <label for="month">Tháng:</label>
+      <select id="month" required>
+        <script>
+          // Đặt biến now ở đầu để dùng chung
+          const now = new Date();
+          let prevMonth = now.getMonth(); // getMonth() trả về 0-11
+          if (prevMonth === 0) prevMonth = 12;
+          // Hiển thị placeholder là tháng hiện tại - 1
+          document.write(`<option value="" disabled selected>Tháng ${prevMonth}</option>`);
+          // sinh options tháng 01–12
+          const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+          for (let i = 1; i <= 12; i++) {
+            const m = i.toString().padStart(2, '0');
+            const selected = m === currentMonth ? 'selected' : '';
+            document.write(`<option value="${m}" ${selected}>Tháng ${i}</option>`);
+          }
+        </script>
+      </select>
+
+      <label for="year">Năm:</label>
+      <select id="year" required>
+        <option value="">Chọn năm</option>
+        <script>
+          // sinh options năm, mặc định chọn năm hiện tại
+          const currentYear = now.getFullYear();
+          const years = [2023, 2024, 2025];
+          years.forEach(y => {
+            const selected = y === currentYear ? 'selected' : '';
+            document.write(`<option value="${y}" ${selected}>${y}</option>`);
+          });
+        </script>
+      </select>
+      <button type="submit">Xem bảng lương 🔍</button>
+      <a href="feedback.html" style="display:block; text-align:center; margin-top:1rem; text-decoration:none;">
+    <!--
+    <button type="button" style="
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(90deg, #10b981 60%, #22d3ee 100%);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(16,185,129,0.08);
+      transition: background 0.2s, transform 0.1s;
+    ">
+      Gửi phản hồi 💬
+    </button>  -->
+
+    </form>
+    <div id="result"></div>
+    <div style="text-align:center; margin-top:1.5rem; color:#64748b; font-size:1rem;">
+      Phát triển bởi Diễn Nguyễn
     </div>
-
-    <label for="month">Tháng:</label>
-    <select id="month" required>
-      <script>
-        // Đặt biến now ở đầu để dùng chung
-        const now = new Date();
-        let prevMonth = now.getMonth(); // getMonth() trả về 0-11
-        if (prevMonth === 0) prevMonth = 12;
-        // Hiển thị placeholder là tháng hiện tại - 1
-        document.write(`<option value="" disabled selected>Tháng ${prevMonth}</option>`);
-        // sinh options tháng 01–12
-        const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
-        for (let i = 1; i <= 12; i++) {
-          const m = i.toString().padStart(2, '0');
-          const selected = m === currentMonth ? 'selected' : '';
-          document.write(`<option value="${m}" ${selected}>Tháng ${i}</option>`);
-        }
-      </script>
-    </select>
-
-    <label for="year">Năm:</label>
-    <select id="year" required>
-      <option value="">Chọn năm</option>
-      <script>
-        // sinh options năm, mặc định chọn năm hiện tại
-        const currentYear = now.getFullYear();
-        const years = [2023, 2024, 2025];
-        years.forEach(y => {
-          const selected = y === currentYear ? 'selected' : '';
-          document.write(`<option value="${y}" ${selected}>${y}</option>`);
-        });
-      </script>
-    </select>
-    <button type="submit">Xem bảng lương 🔍</button>
-    <a href="feedback.html" style="display:block; text-align:center; margin-top:1rem; text-decoration:none;">
-  <!--
-  <button type="button" style="
-    width: 100%;
-    padding: 0.75rem;
-    background: linear-gradient(90deg, #10b981 60%, #22d3ee 100%);
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(16,185,129,0.08);
-    transition: background 0.2s, transform 0.1s;
-  ">
-    Gửi phản hồi 💬
-  </button>  -->
-
-  </form>
-
-  <div id="result"></div>
-
-  <div style="text-align:center; margin-top:1.5rem; color:#64748b; font-size:1rem;">
-    Phát triển bởi Diễn Nguyễn
+    <div style="text-align:center; margin-top:0.3rem; color:#94a3b8; font-size:0.97rem;">
+      © 2025 Tổng công ty Bưu điện Việt Nam. Tất cả quyền lợi được bảo vệ
+    </div>
   </div>
-  <div style="text-align:center; margin-top:0.3rem; color:#94a3b8; font-size:0.97rem;">
-    © 2025 Tổng công ty Bưu điện Việt Nam. Tất cả quyền lợi được bảo vệ
-  </div>
-
   <script>
     // ===== Cấu hình =====
     const GLOBAL_PIN = 'vnpost';  // <-- Mã PIN chung cho tất cả người dùng
